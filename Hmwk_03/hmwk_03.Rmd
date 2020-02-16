@@ -1,0 +1,123 @@
+---
+title: "Assignment 3"
+author: "Reid Ginoza"
+date: "2/23/2020"
+output: pdf_document
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(kableExtra)
+library(reticulate)
+use_python("/Users/macowner/my_venv/py38/bin/python")
+```
+
+# Simulation
+
+First I will simulate one-dimensional Brownian motion using `python` following [@higham2001algorithmic].
+
+```{python setup python}
+from matplotlib import pyplot as plt
+import numpy as np
+
+
+def brownian_motion(end_time=1., num_tsteps=500):
+    dt = (end_time - 0) / num_tsteps
+    dw = np.sqrt(dt) * np.random.normal(size=num_tsteps+1)
+    # Brownian motion must start at time 0 with value 0
+    dw[0] = 0
+    w = dw.cumsum()
+    t = np.linspace(0, end_time, num=num_tsteps+1)  # not used in calculations
+    assert len(w) == len(t), f'time and position arrays are not the same length. len(t) - len(w) = {len(t) - len(w)}'
+    return t, w, dw
+```
+
+```{python constants}
+END_TIME = 1.
+NUM_TSTEPS = 500
+N_TRIALS = 10
+CONSISTENT = True
+PLOTS = True
+```
+
+```{python simulation}
+if CONSISTENT:
+    np.random.seed(0)  # keeps the psuedo-random number
+    #generator in the same sequence from run to run
+
+if PLOTS:
+    fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True,
+                                   sharey=True, figsize=(7,7))
+
+results = []
+    
+for i in range(N_TRIALS):
+    time, position, velocity = brownian_motion(end_time=END_TIME, num_tsteps=NUM_TSTEPS)
+    results.append((position, velocity))
+    
+    if PLOTS:
+        ax0.plot(time, position, label=f'Trial {i}')
+
+if PLOTS:
+    ax0.plot(time, np.zeros_like(time), color='0.0', label='Expectation', linewidth=2)
+    ax0.plot(time, 2 * np.sqrt(time), '--', color='0.75')
+    ax0.plot(time, -2 * np.sqrt(time) * np.ones_like(time), '--', color='0.75', label='95% Conf. Int.')
+    ax0.set_title('Examples of One-Dimensional Brownian Motion')
+    box = ax0.get_position()
+    ax0.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    ax0.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+    mean = np.array([res[0] for res in results]).T.mean(axis=1)
+
+    ax1.plot(time, mean, label='Sample Mean')
+    ax1.plot(time, np.zeros_like(time), label='Expectation')
+    ax1.set_title('Sample Mean and Mathematical Expectation')
+    box = ax1.get_position()
+    ax1.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    ax1.legend(bbox_to_anchor=(1.05, 0.5), loc='upper left', borderaxespad=0.)
+    plt.xlabel('Time')
+    plt.ylabel('Position')
+    plt.show()
+```
+
+(Page left blank)
+\clearpage
+
+# Analytical Problem
+From [@evans2012introduction], Exercise (19):
+Let \(W(\cdot)\) be a one-dimensional Brownian motion. Show
+\[
+E(W^{2k}(t)) = \dfrac{(2k)!t^k}{2^kk!}
+\]
+
+## My Solution
+From the text, we know that \(W(t) \sim N(0, t)\), ie. that Brownian motion is normally distributed with variance \(t\).
+Thus, the probability density function of \(W(t)\), \(f_{W(t)}(w) = \dfrac{1}{\sqrt{2 \pi t}} \text{e}^{-\frac{w^2}{2t}}\).
+
+A few strategies will be used in the integration.
+First, we'll use a change of variables: \(x = \dfrac{w}{\sqrt{2t}}\), to make the integration clearner.
+Then we'll use the gamma function (denoted by \(\Gamma\)) in the integration.
+The integration is as follows:
+\[
+\int_{-\infty}^\infty x^{2k} \text{e}^{-x^2} dx = \Gamma(k + \dfrac{1}{2})
+\]
+and that gamma function evaluates to:
+\[
+\Gamma(k + \dfrac{1}{2}) = \dfrac{(2k)!}{4^k k!} \sqrt{\pi}.
+\]
+
+Now, for the problem at hand:
+\begin{align}
+E(W^{2k}(t)) &= \dfrac{1}{\sqrt{2 \pi t}} \int_{-\infty}^\infty w^{2k} \text{e}^{-\frac{w^2}{2t}}dw\\
+&= \dfrac{1}{\sqrt{2 \pi t}} \int_{-\infty}^\infty (\sqrt{2t}x)^{2k} \text{e}^{-x^2} \sqrt{2t} dx\\
+&= \dfrac{(2t)^{k} \sqrt{2t}}{\sqrt{2 \pi t}} \int_{-\infty}^\infty x^{2k} \text{e}^{-x^2} dx\\
+&= \dfrac{(2t)^{k}}{\sqrt{\pi}} \int_{-\infty}^\infty x^{2k} \text{e}^{-x^2} dx\\
+&= \dfrac{(2t)^{k}}{\sqrt{\pi}} \Gamma(k + \dfrac{1}{2})\\
+&= \dfrac{(2t)^{k}}{\sqrt{\pi}} \dfrac{(2k)!}{4^k k!} \sqrt{\pi}\\
+&= \dfrac{(2k)! 2^{k} t^{k}}{(2^k)^2 k!}\\
+&= \dfrac{(2k)!t^k}{2^kk!}
+\end{align}
+
+# References

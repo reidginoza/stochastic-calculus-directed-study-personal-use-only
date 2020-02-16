@@ -1,0 +1,173 @@
+---
+title: "Assignment 1"
+author: "Reid Ginoza"
+date: "2/9/2020"
+output: pdf_document
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(kableExtra)
+library(reticulate)
+use_python("/Users/macowner/Documents/Stochastic_Calculus/PyCharm/venv/bin/python")
+
+```
+
+# Problem Statement
+
+This assignment focuses on Exercise 1.19 from [@driver2016hmwk].
+
+Suppose Harriet has 7 dollars.
+Her plan is to make one dollar bets on fair coin tosses until her wealth reaches either 0 or 50, and then to go home.
+What is the expected amount of money that Harriet will have when she goes home?
+What is the probability that she will have 50 when she goes home?
+
+# Simulation
+
+To get started, let's run a simulation.
+This was created using `python`.
+Below, the `harriet_trial` produces one full trial of Harriet's betting sequence above.
+She starts with 7 dollars and will stop when she either reaches 0 or 50 dollars.
+
+```{python setup python}
+import random
+
+from matplotlib import pyplot as plt
+import pandas as pd
+
+def harriet_trial(start=7, stop_low=0, stop_high=50):
+    state = start
+    states = [state]
+    rounds = 0
+    while state != stop_low and state != stop_high:
+        rounds += 1
+        if random.random() > 0.5:  # if heads
+            state += 1
+        else:  # if tails
+            state -= 1
+        states.append(state)
+    return {'final_state': state, 'rounds': rounds, 'states': states}
+```
+
+## Simulation Constants
+
+Since we want to see what happens for multiple trials, we'll set `N_TRIALS = 10000` and collect the percentage of times Harriet leaves with 50 dollars compared with the percentage of times Harriet leaves with 0 dollars.
+
+```{python constants}
+CONSISTENT = True
+PLOTS = True
+N_TRIALS = 10000
+```
+
+## Run
+
+```{python simulation}
+if CONSISTENT:
+    random.seed(0)  # keeps the psuedo-random number generator in the same sequence from run to run
+
+if PLOTS:
+    plt.figure(figsize=(10, 4))
+    
+results = []
+for i in range(N_TRIALS):
+    results.append(harriet_trial(start=7, stop_low=0, stop_high=50))
+    if PLOTS:
+      if random.random() < 0.001:
+        plt.plot(results[-1]['states'], label='Trial {}'.format(i))
+plt.xlabel('Flips')
+plt.ylabel('Wealth (USD)')
+plt.title('Sample Paths')
+plt.legend()
+```
+
+## Collect Results
+
+```{python results}
+data = pd.DataFrame(results)
+grouped_data = data.groupby(by='final_state').count()[['rounds']]
+grouped_data['Percentage'] = grouped_data.rounds / N_TRIALS
+```
+
+```{r Show Table, echo=FALSE}
+py$grouped_data %>% kable("latex", booktabs = T)
+```
+
+## Simulation Conclusion
+
+Based on our simulation, we expect the probability of Harriet having 50 dollars when she goes home is 13.8%, and the expected value is 6.9 dollars.
+
+# Analytical Solution
+
+We will show that we have a discrete martingale, and furthermore, that it is bounded, so that we may apply Doob's Optional Stopping Theorem.
+Then solving for the probabilities will be a matter of solving a linear system.
+
+## Problem Set up
+
+First, let's define our variables.
+For \(i=0, 1, 2, 3, \ldots\) let \(S_i\) be Harriet's wealth after the \(i\)-th flip.
+Since Harriet starts with 7 dollars, \(S_0=7\).
+
+Let \(X_i\) be Harriet's earnings from the \(i\)-th flip.
+For \(i=1, 2, 3,\ldots\), all \(X_i\) are independent and identically distributed (i.i.d.) as either 1 with probability 0.5 or -1 with probability 0.5.
+In otherwords, \(P(X_i = 1) = 0.5\) and \(P(X_i = -1) = 0.5\) for \(i=1, 2, 3,\ldots\).
+Then, \(E(X_i) = 0\), and for \(i \neq j\), \(\underbrace{E(X_i | X_j) = E(X_i)}_{\text{by independence}} = 0\).
+
+## Discrete Martingale
+
+Also note that, \(S_{i+1} = S_{i} + X_{i+1}\).
+To show that the sequence \(S_0, S_1, S_2\ldots\) is a discrete martingale, we want to find \(E(S_j | S_0, \ldots, S_k)\) for all \(j \geq k\).
+\begin{align}
+E(S_j | S_0, \ldots, S_k) &= E(S_k + X_{k+1} + \ldots + X_{j-1} + X_{j}| S_0, \ldots, S_k)\\
+&= \underbrace{E(S_k | S_0, \ldots, S_k)}_{\text{Since \(S_k\) is known, \(S_k\) is a constant and \(E(S_k) = S_k\)}} + E(X_{k+1} + \ldots + X_{j-1} + X_{j} | S_0, \ldots, S_k)\\
+&= S_k + E(X_{k+1} + \ldots + X_{j-1} + X_{j} | S_0, X_1, \ldots, X_k)\\
+&= S_k + \underbrace{E(X_{k+1}| S_0, X_1, \ldots, X_k) + \ldots + E(X_{j-1}| S_0, X_1, \ldots, X_k) + E(X_{j}| S_0, X_1, \ldots, X_k)}_{\text{Since \(S_0\) is a constant, and all \(X_i\) are i.i.d.}}\\
+&= S_k + \underbrace{E(X_{k+1}) + \ldots + E(X_{j-1}) + E(X_{j})}_{=0}\\
+&= S_k
+\end{align}
+Therefore, \(S_0, S_1, S_2\ldots\) is a discrete martingale.
+
+## Boundedness
+
+Now, let \(T\) be the stopping time, that is, the first time such that \(S_T = 50\) or \(S_T = 0\).
+Because of the stopping time condition, \(S_0, S_1, S_2\ldots\) is a bounded martingale, since \(\left| S_n \right| \leq 50\) with probability one for all \(n \geq 0\).
+Now, we can apply Doob's Optional Stopping Theorem for bounded martingales.
+Thus, \(E(S_T) = S_0 = 7\).
+
+## Solving for Probabilities
+
+\(S_T\) can only be two values.
+Either, \(S_T = 50\) or \(S_T = 0\).
+Thus,
+\begin{align}
+E(S_T) &= 0 * P(S_T = 0) + 50 * P(S_T = 50)\\
+&= 50 * P(S_T = 50)
+\end{align}
+
+But, from the previous section,
+\begin{align}
+E(S_T) = S_0 = 7 &= 50 * P(S_T = 50)\\
+0.14 &= P(S_T = 50)\\
+0.86 &= P(S_T = 0)
+\end{align}
+
+## Conclusion
+Thus, the probability that Harriet takes home 50 dollars is 0.14, and our simulation was close at 0.138.
+The expected amount of money she will take home is 7 dollars, and again, our simulation was close at 6.9 dollars.
+
+# Generalization
+In a general Harriet trial with a starting wealth of \(S_0\), stopping minimum wealth \(s_-\), and stopping maximum wealth \(s_+\):
+\begin{align}
+E(S_T) = S_0 &= s_- * P(S_T = s_-) + s_+ * P(S_T = s_+)\\
+S_0 &= s_- * P(S_T = s_-) + s_+ * \left(1 - P(S_T = s_-)\right)\\
+S_0 &= s_- * P(S_T = s_-) + s_+ - s_+ * P(S_T = s_-)\\
+S_0 - s_+ &= s_- * P(S_T = s_-) - s_+ * P(S_T = s_-)\\
+\dfrac{S_0 - s_+}{s_- - s_+} &= P(S_T = s_-)\\
+1 - \dfrac{S_0 - s_+}{s_- - s_+} &= 1 - P(S_T = s_-) = P(S_T = s_+)
+\end{align}
+
+Therefore, Harriet's expected amount of money taken home would be \(S_0\).
+The probability that she takes home \(s_-\) dollars is \(\dfrac{S_0 - s_+}{s_- - s_+}\), and the probability that she takes home \(s_+\) dollars is \(1 - \dfrac{S_0 - s_+}{s_- - s_+}\).
+
+# References
