@@ -15,74 +15,232 @@ use_python("/Users/macowner/my_venv/py38/bin/python")
 ```
 
 # Simulation
+The analytical problem below asks about the following:
+Let \(W(\cdot)\) be one-dimensional Brownian motion. Then let
+\begin{enumerate}
+    \item \(W_\text{shift} := W(t+s) - W(s)\) for all \(s \geq 0\)
+    \item \(W_\text{scale} := c W\left(\dfrac{t}{c^2}\right)\) for all \(c > 0\)
+\end{enumerate}
 
-First I will simulate one-dimensional Brownian motion using `python` following [@higham2001algorithmic].
+Later, we will show that both of the above results in Brownian motion.
+Before looking at the math, we will see what they look like when simulated.
+First, I will simulate shifted one-dimensional Brownian motion.
+All code is written in `python`.
+
+## Shifted Brownian Motion
 
 ```{python setup python}
 from matplotlib import pyplot as plt
 import numpy as np
 
 
-def brownian_motion(end_time=1., num_tsteps=500):
+def plot_on_axis(ax, time, pos, cols, title, with_mean=False):
+    ax.plot(time, pos[:, cols])
+    ax.set_title(title)
+    if with_mean:
+        ax.plot(time, pos.mean(axis=1), color='black',
+            label='Sample Mean', linewidth=2)
+        ax.legend()
+
+
+def multiple_brownian_motion(end_time=1., num_tsteps=500, n_trials=1000):
     dt = (end_time - 0) / num_tsteps
-    dw = np.sqrt(dt) * np.random.normal(size=num_tsteps+1)
+    dw = np.random.normal(scale=np.sqrt(dt), size=(num_tsteps+1, n_trials))
     # Brownian motion must start at time 0 with value 0
-    dw[0] = 0
-    w = dw.cumsum()
+    dw[0] = np.zeros_like(dw[0])
+    w = dw.cumsum(axis=0)
     t = np.linspace(0, end_time, num=num_tsteps+1)  # not used in calculations
-    assert len(w) == len(t), f'time and position arrays are not the same length. len(t) - len(w) = {len(t) - len(w)}'
+    assert w.shape[0] == t.shape[0], f'time and position arrays are not the same length. w.shape[0] - t.shape[0] = {w.shape[0] - t.shape[0]}'
+    assert w.shape == dw.shape, f'position and velocity arrays are not the same shape: w.shape: {w.shape}    dw.shape: {dw.shape}'
     return t, w, dw
+
+
+def shift_brownian_motion(time_length=1., num_tsteps=500, n_trials=1000, shift=0.5):
+    """
+    This function calculates the shift with time starting at 0
+    and the first value at shift
+    """
+    dt = time_length / num_tsteps
+    end_time = shift + time_length
+    assert (end_time / dt).is_integer(), 'adjust end_time and shift so that (end_time / dt).is_integer()'
+    total_steps = int(end_time // dt) + 1
+    dw = np.random.normal(scale=np.sqrt(dt), size=(total_steps, n_trials))
+
+    # Brownian motion must start at time 0 with value 0
+    dw[0] = np.zeros_like(dw[0])
+    w = dw.cumsum(axis=0)
+    t = np.linspace(0, end_time, num=total_steps)
+
+    # shift occurs here
+    w = w[t >= shift]
+    w -= w[0]
+    t = t[t >= shift]
+
+    assert w.shape[0] == t.shape[0], f'time and position arrays are not the same length. w.shape[0] - t.shape[0] = {w.shape[0] - t.shape[0]}'
+    return t, w
 ```
 
 ```{python constants}
 END_TIME = 1.
 NUM_TSTEPS = 500
-N_TRIALS = 10
-CONSISTENT = True
+N_TRIALS = 1000
 PLOTS = True
+N_PATHS = 10
 ```
 
-```{python simulation}
-# space for simulation
+Although the Brownian Motion is shifted, it still looks like Brownian motion.
+
+```{python plots of shift}
+orig_time, orig_position, orig_velocity = multiple_brownian_motion(
+    end_time=1., num_tsteps=NUM_TSTEPS, n_trials=N_TRIALS)
+shift_time, shift_position = shift_brownian_motion(
+    time_length=1., num_tsteps=NUM_TSTEPS, n_trials=N_TRIALS, shift=0.5)
+
+if PLOTS:
+    # select random paths since showing all N_TRIALS would be visually crowded.
+    columns = np.arange(orig_position.shape[1])
+    np.random.shuffle(columns)
+    plot_columns = columns[:N_PATHS]
+
+    fig, axs = plt.subplots(2, sharex=True, sharey=True, figsize=(7, 6.5))
+    plot_on_axis(axs[0], orig_time, orig_position,
+                 plot_columns, 'Original Brownian Motion Sample Paths',
+                 with_mean=True)
+    plot_on_axis(axs[1], shift_time, shift_position,
+                 plot_columns, r'Shifted Brownian Motion Sample Paths $s=0.5$',
+                 with_mean=True)
+    axs[1].set_xlim(0, shift_time.max())
+    plt.xlabel('Time')
+    plt.ylabel('Position')
+    plt.show()
 ```
 
+## Scaled Brownian Motion
+
+```{python scale function and plot}
+def scale_brownian_motion(end_time=1., num_tsteps=500, n_trials=1000, scale=0.5):
+    """
+    This function calculates the scaling
+    """
+    dt = (end_time - 0) / num_tsteps / scale**2
+    dw = np.random.normal(scale=np.sqrt(dt), size=(num_tsteps + 1, n_trials))
+    # Brownian motion must start at time 0 with value 0
+    dw[0] = np.zeros_like(dw[0])
+    w = dw.cumsum(axis=0) * scale
+    t = np.linspace(0, end_time, num=num_tsteps + 1) / scale**2
+    assert w.shape[0] == t.shape[0], f'time and position arrays are not the same length. w.shape[0] - t.shape[0] = {w.shape[0] - t.shape[0]}'
+    assert w.shape == dw.shape, f'position and velocity arrays are not the same shape: w.shape: {w.shape}    dw.shape: {dw.shape}'
+    return t, w, dw
+
+scale_small_time, scale_small_position, scale_small_vel = scale_brownian_motion(
+    end_time=1., num_tsteps=NUM_TSTEPS, n_trials=N_TRIALS, scale=2
+)
+scale_big_time, scale_big_position, scale_big_vel = scale_brownian_motion(
+    end_time=1., num_tsteps=NUM_TSTEPS, n_trials=N_TRIALS, scale=0.5
+)
+
+if PLOTS:
+    fig, axs = plt.subplots(3, sharex=True, sharey=True, figsize=(7, 10))
+    plot_on_axis(axs[0], orig_time, orig_position,
+                 plot_columns, 'Original Brownian Motion Sample Paths',
+                 with_mean=True)
+    plot_on_axis(axs[1], scale_small_time, scale_small_position,
+                 plot_columns, r'Scaled Brownian Motion Sample Paths $c=2$',
+                 with_mean=True)
+    plot_on_axis(axs[2], scale_big_time, scale_big_position,
+                 plot_columns, r'Scaled Brownian Motion Sample Paths $c=0.5$',
+                 with_mean=True)
+
+    plt.xlabel('Time')
+    plt.ylabel('Position')
+    plt.show()
+```
+
+And out of curiosity, I plotted the horizontally compressed Brownian motion on its own:
+```{python compressed plot}
+if PLOTS:
+    fig, ax = plt.subplots(1, sharex=True, sharey=True, figsize=(7, 3.5))
+    plot_on_axis(ax, scale_small_time, scale_small_position,
+                 plot_columns, r'Scaled Brownian Motion Sample Paths $c=2$',
+                 with_mean=True)
+    plt.xlabel('Time')
+    plt.ylabel('Position')
+    plt.show()
+```
 
 # Analytical Problem
-From [@evans2012introduction], Exercise (33.):
-Show directly that \(I(t):=W^2(t) - t\) is a martingale.
-
-(Hint: \(W^2(t) = (W(t)-W(s))^2 - W^2(s) + 2W(t)W(s)\).
-Take the conditional expectation with respect to \(\mathcal{W}(s)\), the history of \(W(\cdot)\), and then condition with respect to the history of \(I(\cdot)\).)
+From [@evans2012introduction], Exercise (23.):
+Show that if \(\mathbf{W}(\cdot)\) is an \(n\)-dimensional Brownian motion, then so are
+\begin{enumerate}
+    \item \(\mathbf{W}(t+s) - \mathbf{W}(s)\) for all \(s \geq 0\)
+    \item \(c \mathbf{W}\left(\dfrac{t}{c^2}\right)\) for all \(c > 0\)
+\end{enumerate}
 
 ## My Solution
-To show that \(I(t)\) is a martingale, we want to show that \(I(s) = \mathrm{E}(I(t) \vert \mathcal{U}(s))\).
+I studied ony the one-dimensional case for the above, guided by [@dunbar2010course].
+Each section will have three subsections corresponding to the three conditions in the definition of Brownian Motion.
+The three conditions to be satisfied for the definition of Brownian Motion \(W(\cdot)\) are:
+\begin{enumerate}
+    \item \(W(0) = 0\),
+    \item \(W(t) - W(s) \sim N(0, t-s)\) for all \(t \geq s \geq 0\),
+    \item For all times \(0 = t_0 < t_1 < t_2 < \ldots < t_n\), the random variables \(W(t_1) - W(t_0), W(t_2) - W(t_1), \ldots, W(t_n) - W(t_{n-1})\) are independent.
+\end{enumerate}
 
-Following the hint about \(W^2\):
+### One-dimensional Shifting
+The first problem studies \(W_\text{shift}(t) := W(t + s) - W(s)\) for a fixed \(s \geq 0\).
+
+#### Initial Condition
+Fix \(s \geq 0\). Then,
 \[
-I(t):=W^2(t) - t = (W(t)-W(s))^2 - W^2(s) + 2W(t)W(s) - t
+W_\text{shift} (0) = W(0 + s) - W(s) = W(s) - W(s) = 0 \quad \text{almost surely}.
 \]
 
-Now, let \(\mathcal{U}(s)\) be the history of the \(I(\cdot)\) until time \(s\), and \(\mathcal{W}(s)\) be the history of \(W(\cdot)\) until time \(s\).
+#### Increments are normally distributed
+Fix \(s \geq 0\). Then,
 \begin{align}
-\mathrm{E}(I(t) \vert \mathcal{W}(s)) &= \mathrm{E}( (W(t)-W(s))^2 - W^2(s) + 2W(t)W(s) - t \vert \mathcal{W}(s))\\
-&= \mathrm{E}( (W(t)-W(s))^2 \vert \mathcal{W}(s)) 
-- \mathrm{E}( W^2(s) \vert \mathcal{W}(s))
-+ \mathrm{E}( 2W(t)W(s) \vert \mathcal{W}(s))
-- \mathrm{E}( t\vert \mathcal{W}(s))\\
-&= \mathrm{Var}(W(t)-W(s) \vert \mathcal{W}(s))
-    + \lvert\mathrm{E}(W(t)-W(s))\rvert^2
-- W^2(s)
-+ 2W(s)\mathrm{E}(W(t) \vert \mathcal{W}(s))
-- t\\
-&= \mathrm{Var}(W(t) \vert \mathcal{W}(s))
-- W^2(s)
-+ 2W^2(s)
-- t\\
-&= t
-+ W^2(s)
-- t\\
-&= W^2(s)
+W_\text{shift}(t_2) - W_\text{shift}(t_1) &= W(t_2 +s) - W(s) - \left(W(t_1 + s) - W(s)\right)\\
+&= W(t_2 +s) - W(t_1 + s)\\
+&\sim N(0, (t_2+s) - (t_1 + s)) = N(0, t_2 - t_1)
 \end{align}
+
+#### Increments are Independent
+Fix \(s \geq 0\).
+Let there be \(m+1\) time steps such that  \(t_0 + s < t_1 +s < t_2 +s , \ldots < t_m + s\).
+Then for any \(i, j \in \{1, \ldots, m\}\) with \(i < j\):
+\begin{align}
+W_\text{shift}(t_j)-W_\text{shift}(t_{j-1}) &= W(t_j + s) - W(s) - \left( W(t_{j-1} + s) - W(s)\right) = W(t_j+s) - W(t_{j-1}+s)\\
+W_\text{shift}(t_i)-W_\text{shift}(t_{i-1}) &= W(t_i + s) - W(s) - \left( W(t_{i-1} + s) - W(s)\right) = W(t_i+s) - W(t_{i-1}+s)
+\end{align}
+and by definition of \(W(\cdot)\), \(W(t_j+s) - W(t_{j-1}+s)\) and \( W(t_i+s) - W(t_{i-1}+s) \) are independent.
+
+### One-dimensional Scaling
+This problem studies \(W_\text{scale}(t) := cW \left( \dfrac{t}{c^2} \right)\) for a fixed \(c > 0\).
+
+#### Initial Condition
+Fix \(c > 0\). Then,
+\[
+W_\text{scale} = cW \left( \dfrac{0}{c^2} \right) = cW(0) = 0 \quad \text{almost surely}.
+\]
+
+#### Increments are normally distributed
+Fix \(c > 0\). First, we know from the definition of \(W(\cdot)\) that \(W(t_2) - W(t_1)\) is normally distributed with mean 0 and variance \(t_2-t_1\).
+Thus, \(W_\text{shift}(t_2) - W_\text{shift}(t_1)\) is a normally distributed random variable times a scalar.
+\begin{align}
+W_\text{shift}(t_2) - W_\text{shift}(t_1) &= cW \left( \dfrac{t_2}{c^2} \right) - cW \left( \dfrac{t_1}{c^2} \right)\\
+&= c \left( W \left( \dfrac{t_2}{c^2} \right) - W \left( \dfrac{t_1}{c^2} \right) \right)\\
+&\sim c N \left( 0, \dfrac{(t_2 - t_1)}{c^2} \right) = N \left(0, c^2 \dfrac{(t_2-t_1)}{c^2} \right)= N (0, t_2-t_1)
+\end{align}
+This last step is due to the fact that, in general, for a random variable \(X\) with finite mean and variance, \(\text{E}(cX) = c \text{E}(X)\) and \(\text{Var}(cX) = c^2 \text{Var}(X)\).
+
+#### Increments are independent
+Fix \(c > 0\).
+Let there be \(m+1\) time steps such that  \(\dfrac{t_0}{c^2} < \dfrac{t_1}{c^2} < \dfrac{t_2}{c^2}, \ldots < \dfrac{t_m}{c^2}\).
+Then for any \(i, j \in \{1, \ldots, m\}\) with \(i < j\):
+\begin{align}
+W_\text{scale}(t_j) - W_\text{scale}(t_{j-1}) &= c \left( W \left( \dfrac{t_j}{c^2} \right) - W \left( \dfrac{t_{j-1}}{c^2} \right) \right)\\
+W_\text{scale}(t_i) - W_\text{scale}(t_{i-1}) &= c \left( W \left( \dfrac{t_i}{c^2} \right) - W \left( \dfrac{t_{i-1}}{c^2} \right) \right)\\
+\end{align}
+and by definition of \(W(\cdot)\), \(W \left( \dfrac{t_j}{c^2} \right) - W \left( \dfrac{t_{j-1}}{c^2} \right)\) and \( W \left( \dfrac{t_i}{c^2} \right) - W \left( \dfrac{t_{i-1}}{c^2} \right) \) are independent, and independent random variables multiplied by a scalar are also independent.
 
 
 # References
