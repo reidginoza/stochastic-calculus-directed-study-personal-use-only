@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1bb3734c-098c-4ed3-ac30-d180b09f7502" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/hm4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.Rmd" beforeDir="false" afterPath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.Rmd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hm5.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,7 +32,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
   </component>
-  <component name="RunManager" selected="Python.hm4">
+  <component name="RunManager" selected="Python.hm5">
     <configuration name="hm2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="hmwk_notes" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -98,13 +96,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="hm5" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="hmwk_notes" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hm5.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.hm4" />
-        <item itemvalue="Python.hm4" />
-        <item itemvalue="Python.hm4" />
-        <item itemvalue="Python.hm4" />
-        <item itemvalue="Python.hm4" />
+        <item itemvalue="Python.hm5" />
+        <item itemvalue="Python.hm5" />
+        <item itemvalue="Python.hm5" />
+        <item itemvalue="Python.hm5" />
+        <item itemvalue="Python.hm5" />
       </list>
     </recent_temporary>
   </component>
@@ -119,13 +135,33 @@
       <option name="presentableId" value="Default" />
       <updated>1580958951212</updated>
     </task>
+    <task id="LOCAL-00001" summary="Fixed a typo">
+      <created>1583463448221</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1583463448221</updated>
+    </task>
+    <task id="LOCAL-00002" summary="hmwk 4">
+      <created>1583463485789</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1583463485789</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Fixed a typo" />
+    <MESSAGE value="hmwk 4" />
+    <option name="LAST_COMMIT_MESSAGE" value="hmwk 4" />
+  </component>
   <component name="WindowStateProjectService">
-    <state x="353" y="52" key="CommitChangelistDialog2" timestamp="1583463446388">
+    <state x="353" y="52" key="CommitChangelistDialog2" timestamp="1583463485148">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="353" y="52" key="CommitChangelistDialog2/0.0.1440.900@0.0.1440.900" timestamp="1583463446388" />
+    <state x="353" y="52" key="CommitChangelistDialog2/0.0.1440.900@0.0.1440.900" timestamp="1583463485148" />
     <state x="372" y="84" key="SettingsEditor" timestamp="1581994288602">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
