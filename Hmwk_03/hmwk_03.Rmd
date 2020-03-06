@@ -177,7 +177,7 @@ Show that if \(\mathbf{W}(\cdot)\) is an \(n\)-dimensional Brownian motion, then
 \end{enumerate}
 
 ## My Solution
-I studied ony the one-dimensional case for the above, guided by [@dunbar2010course].
+I studied only the one-dimensional case for the above, guided by [@dunbar2010course].
 Each section will have three subsections corresponding to the three conditions in the definition of Brownian Motion.
 The three conditions to be satisfied for the definition of Brownian Motion \(W(\cdot)\) are:
 \begin{enumerate}
