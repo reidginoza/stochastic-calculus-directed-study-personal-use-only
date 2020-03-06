@@ -1,0 +1,128 @@
+---
+title: "Assignment 4"
+author: "Reid Ginoza"
+date: "3/1/2020"
+output: pdf_document
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_python("/Users/macowner/my_venv/py38/bin/python")
+```
+
+# Analytical
+This assignment follows Exercise 35 from [@evans2012introduction]:
+
+Use the Itô chain rule to show that \(Y(t) := \mathrm{e}^{\frac{t}{2}} \cos(W(t))\) is a martingale.
+
+## My Solution
+Let \(X(t) = W(t)\).
+Then \(dX = dW\).
+Rewriting \(X\) in the general differential form: we have
+\[
+dX = F dt + GdW
+\]
+And since we know that \(dX = dW\), then we know that \(F \equiv 0\) and \(G \equiv 1\).
+
+Now let \(u(x, t) := \mathrm{e}^{\frac{t}{2}} \cos(x)\).
+Then we know the following:
+\begin{itemize}
+    \item \(u_t = \dfrac{1}{2} \mathrm{e}^{\frac{t}{2}} \cos(x)\)
+    \item \(u_x = - \mathrm{e}^{\frac{t}{2}} \sin(x)\)
+    \item \(u_{xx} = - \mathrm{e}^{\frac{t}{2}} \cos(x)\)
+\end{itemize}
+
+Since we chose \(u(x, t)\) so that \(Y = u(X, t)\), we can apply the Itô chain rule:
+\begin{align}
+  dY = du(X, t) &= \left( u_t + u_x F + \dfrac{1}{2} u_{xx} G^2\right) dt + u_x G dW\\
+  &= \left( u_t + \dfrac{1}{2} u_{xx} \right) dt + u_x dW\\
+  &= \left( \dfrac{1}{2} \mathrm{e}^{\frac{t}{2}} \cos(x) - \dfrac{1}{2} \mathrm{e}^{\frac{t}{2}} \cos(x) \right) dt - \mathrm{e}^{\frac{t}{2}} \sin(x) dW\\
+  dY &= - \mathrm{e}^{\frac{t}{2}} \sin(x) dW
+\end{align}
+
+Now let \(s\) and \(r\) be times such that \(0 \leq s \leq r \leq T\).
+Then the stochastic process \(Y(\cdot)\) can be written as:
+\[
+Y(r) = Y(s) - \int_s^r \mathrm{e}^{\frac{t}{2}} \sin(x) dW.
+\]
+
+To see whether \(Y(\cdot)\) is a martingale, we want to take the mathematical expectation of \(Y(r)\) with the history \(\mathcal{U}(s)\).
+\begin{align}
+  \mathrm{E}(Y(r) \vert \mathcal{U}(s)) &= \mathrm{E} \left( Y(s) - \int_s^r \mathrm{e}^{\frac{t}{2}} \sin(x) dW \vert \mathcal{U}(s) \right)\\
+  &= \mathrm{E} \left( Y(s)\vert \mathcal{U}(s) \right) - \mathrm{E} \left( \int_s^r \mathrm{e}^{\frac{t}{2}} \sin(x) dW \vert \mathcal{U}(s) \right)\\
+  &= Y(s) - \mathrm{E} \left( \int_s^r \mathrm{e}^{\frac{t}{2}} \sin(x) dW \vert \mathcal{U}(s) \right)\\
+  \mathrm{E}(Y(r) \vert \mathcal{U}(s)) &= Y(s)
+\end{align}
+
+The last line simplified based on the Theorem in Section 4.2.3 of [@evans2012introduction], which states that:
+\[
+\mathrm{E} \left( \int_0^T G dW\right) = 0
+\]
+and a similar statement can be made of an interval in the support.
+
+# Simulation
+This will simulate multiple sample paths of the stochastic process \(Y(t) := \mathrm{e}^{\frac{t}{2}} \cos(W(t))\).
+
+```{python setup python}
+from matplotlib import pyplot as plt
+import numpy as np
+
+
+def plot_on_axis(ax, time, pos, cols, title, with_mean=False):
+    ax.plot(time, pos[:, cols])
+    ax.set_title(title)
+    if with_mean:
+        ax.plot(time, pos.mean(axis=1), color='black',
+            label='Sample Mean', linewidth=2)
+        ax.legend()
+
+
+def multiple_brownian_motion(end_time=1., num_tsteps=500, n_trials=1000):
+    dt = (end_time - 0) / num_tsteps
+    dw = np.random.normal(scale=np.sqrt(dt), size=(num_tsteps+1, n_trials))
+    # Brownian motion must start at time 0 with value 0
+    dw[0] = np.zeros_like(dw[0])
+    w = dw.cumsum(axis=0)
+    t = np.linspace(0, end_time, num=num_tsteps+1)  # not used in calculations
+    assert w.shape[0] == t.shape[0], f'time and position arrays are not the same length. w.shape[0] - t.shape[0] = {w.shape[0] - t.shape[0]}'
+    assert w.shape == dw.shape, f'position and velocity arrays are not the same shape: w.shape: {w.shape}    dw.shape: {dw.shape}'
+    return t, w, dw
+
+
+def y_process(t, w):
+    """ The stochastic process defined in the exercise.
+    This function assumes that the same time axis is used for all Brownian motion,
+    can pass the time array output from multiple_brownian_motion.
+    """
+    assert t.shape[0] == w.shape[0], f'Time and Brownian and motion need to be the same length: time {t.shape[0]} vs {w.shape[0]}'
+
+    return np.exp(t/2).reshape((t.shape[0], 1)) * np.cos(w)
+```
+
+```{python constants}
+END_TIME = 2*np.pi
+NUM_TSTEPS = round(END_TIME * 1000)
+N_TRIALS = 1000
+N_PATHS = 10
+```
+
+```{python trial}
+time, w, dw = multiple_brownian_motion(
+    END_TIME, NUM_TSTEPS, N_TRIALS)
+
+position = y_process(time, w)
+
+columns = np.arange(position.shape[1])
+np.random.shuffle(columns)
+plot_columns = columns[:N_PATHS]
+
+fig, ax = plt.subplots(1, figsize=(7, 6.5))
+plot_on_axis(ax, time, position, plot_columns, r'$Y$ Process', with_mean=True)
+plt.xlabel('Time')
+plt.ylabel('Position')
+plt.show()
+```
+
+# References

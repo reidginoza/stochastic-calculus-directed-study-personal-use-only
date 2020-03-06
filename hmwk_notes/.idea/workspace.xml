@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1bb3734c-098c-4ed3-ac30-d180b09f7502" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hm3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hmwk_03/bibliography.bib" beforeDir="false" afterPath="$PROJECT_DIR$/../Hmwk_03/bibliography.bib" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hm4.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.Rmd" beforeDir="false" afterPath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.Rmd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/../Hmwk_03/hmwk_03.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -37,7 +34,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
   </component>
-  <component name="RunManager" selected="Python.hm3">
+  <component name="RunManager" selected="Python.hm4">
     <configuration name="hm2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="hmwk_notes" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -63,6 +60,9 @@
       <module name="hmwk_notes" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -77,13 +77,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="hm4" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="hmwk_notes" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hm4.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.hm3" />
-        <item itemvalue="Python.hm3" />
-        <item itemvalue="Python.hm3" />
-        <item itemvalue="Python.hm3" />
-        <item itemvalue="Python.hm3" />
+        <item itemvalue="Python.hm4" />
+        <item itemvalue="Python.hm4" />
+        <item itemvalue="Python.hm4" />
+        <item itemvalue="Python.hm4" />
+        <item itemvalue="Python.hm4" />
       </list>
     </recent_temporary>
   </component>
@@ -101,13 +122,22 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+    <state x="353" y="52" key="CommitChangelistDialog2" timestamp="1583463446388">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="353" y="52" key="CommitChangelistDialog2/0.0.1440.900@0.0.1440.900" timestamp="1583463446388" />
     <state x="372" y="84" key="SettingsEditor" timestamp="1581994288602">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="372" y="84" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1581994288602" />
-    <state x="399" y="275" key="com.intellij.ide.util.TipDialog" timestamp="1581965419015">
-      <screen x="0" y="23" width="1440" height="841" />
+    <state x="399" y="275" key="com.intellij.ide.util.TipDialog" timestamp="1583463338250">
+      <screen x="0" y="23" width="1440" height="840" />
     </state>
+    <state x="399" y="275" key="com.intellij.ide.util.TipDialog/0.23.1440.840@0.23.1440.840" timestamp="1583463338250" />
     <state x="399" y="275" key="com.intellij.ide.util.TipDialog/0.23.1440.841@0.23.1440.841" timestamp="1581965419012" />
+    <state x="385" y="187" width="670" height="676" key="search.everywhere.popup" timestamp="1582507725206">
+      <screen x="0" y="23" width="1440" height="840" />
+    </state>
+    <state x="385" y="187" width="670" height="676" key="search.everywhere.popup/0.23.1440.840@0.23.1440.840" timestamp="1582507725206" />
   </component>
 </project>
