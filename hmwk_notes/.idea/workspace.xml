@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1bb3734c-098c-4ed3-ac30-d180b09f7502" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/hm5.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hm5.py" beforeDir="false" afterPath="$PROJECT_DIR$/hm5.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,23 +149,35 @@
       <option name="project" value="LOCAL" />
       <updated>1583463485789</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="finished notes for hmwk5">
+      <created>1583467974787</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1583467974787</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Fixed a typo" />
     <MESSAGE value="hmwk 4" />
-    <option name="LAST_COMMIT_MESSAGE" value="hmwk 4" />
+    <MESSAGE value="finished notes for hmwk5" />
+    <option name="LAST_COMMIT_MESSAGE" value="finished notes for hmwk5" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="353" y="52" key="CommitChangelistDialog2" timestamp="1583463485148">
+    <state x="353" y="52" key="CommitChangelistDialog2" timestamp="1583467973776">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="353" y="52" key="CommitChangelistDialog2/0.0.1440.900@0.0.1440.900" timestamp="1583463485148" />
+    <state x="353" y="52" key="CommitChangelistDialog2/0.0.1440.900@0.0.1440.900" timestamp="1583467973776" />
     <state x="372" y="84" key="SettingsEditor" timestamp="1581994288602">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="372" y="84" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1581994288602" />
+    <state x="320" y="190" key="Vcs.Push.Dialog.v2" timestamp="1583467981482">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="320" y="190" key="Vcs.Push.Dialog.v2/0.0.1440.900@0.0.1440.900" timestamp="1583467981482" />
     <state x="399" y="275" key="com.intellij.ide.util.TipDialog" timestamp="1583463338250">
       <screen x="0" y="23" width="1440" height="840" />
     </state>

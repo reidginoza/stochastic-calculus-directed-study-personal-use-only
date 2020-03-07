@@ -47,7 +47,7 @@ def plot_results(approx, exact, title=''):
     plt.plot(approx, '+', alpha=0.5, label='Approx.')
     plt.legend()
     plt.title(title)
-
+    plt.show()
 
 
 def error_plot(approx, exact, title=''):
@@ -56,6 +56,7 @@ def error_plot(approx, exact, title=''):
     plt.ylabel('Frequency')
     plt.xlabel('Error')
     plt.title(title)
+    plt.show()
 
 
 # ----- Start
