@@ -1,0 +1,80 @@
+---
+title: "Assignment 5"
+author: "Reid Ginoza"
+date: "3/22/2020"
+output: pdf_document
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_python("/Users/macowner/my_venv/py38/bin/python")
+```
+# Analytical
+## Exercise
+This is a problem from [@douglas2006stochastic]:
+Verify that
+\[
+N = N_0 \mathrm{e}^{\left( r - \frac{u^2}{2} \right) t + u B_t}
+\]
+is the solution to
+\[
+\dfrac{\mathrm{d}N}{\mathrm{d}t} = rN + u W(t)N
+\]
+where \(r\) and \(u\) are constants.
+
+This is a stochastic form of the population growth model, which models the population growth as propotional to the current population.
+This stochastic form models the stochastic term as also propotional to the current population.
+
+## My Solution
+First, we write the differential equation in the form used in [@evans2012introduction].
+
+\begin{align}
+\dfrac{\mathrm{d}N}{\mathrm{d}t} &= rN + uWN\\
+\mathrm{d}N &= F \mathrm{d}t + G \mathrm{d}B_t,
+\end{align}
+where
+\begin{align}
+F &= rN\\
+G &= uN\\
+dB_t &= W \mathrm{d}t
+\end{align}
+
+From this form, we can apply Itô chain rule by taking the logarithm of both sides.
+In otherwords, we first study a function of the random variable \(N\), \(\Phi\left(N\right)=\ln\left(N\right)\).
+Then for our new function \(\Phi\) we have the following derivatives:
+\begin{align}
+\Phi_t &= 0;\\
+\Phi_N &= \dfrac{1}{N}\\
+\Phi_{NN} &= - \dfrac{1}{N^2}
+\end{align}
+And we can proceed
+\begin{align}
+\mathrm{d}\Phi = \mathrm{d}\ln \left(N\right) &= \left( \Phi_t + \Phi_N F + \dfrac{1}{2} \Phi_{NN} G^2 \right) \mathrm{d}t + \Phi_N G \mathrm{d} B_t\\
+&= \left( 0 + \left( \dfrac{1}{N} \right)  \left( rN \right) - \dfrac{1}{2} \left(\dfrac{1}{N^2}\right) \left(uN\right)^2 \right) \mathrm{d}t + \left(\dfrac{1}{N}\right) \left(uN\right) \mathrm{d} B_t\\
+\mathrm{d}\Phi &= \left( r - \dfrac{u^2}{2} \right) \mathrm{d}t + u \mathrm{d}B_t
+\end{align}
+
+In the last line above, \(r\) and \(u\) are constants from the problem definition.
+By the definition of the stochastic differential, we know the solution \(\Phi\), and we can solve for \(\Phi\) by integration.
+
+\begin{align}
+\Phi = \ln\left(N\right)&= \int_0^t \left( r - \dfrac{u^2}{2} \right) \mathrm{d}t + \int_0^t  u \mathrm{d}B_t\\
+\ln\left(N\right) &= \left( r - \dfrac{u^2}{2} \right) t + u B_t + C\\
+N &= C \mathrm{e}^{\left( r - \frac{u^2}{2} \right)t + u B_t}
+\end{align}
+
+Lastly, when \(t=0\), \(B_t = 0\) by virtue of Brownian motion.
+Let \(N_0 = N\left(0\right)\), our initial condition, and we have:
+\[
+N = N_0 \mathrm{e}^{\left( r - \frac{u^2}{2} \right)t + u B_t}.
+\]
+
+
+# Simulation
+This code is calculating the Itô integral and the Stratonovich integral for integrals with known solutions.
+This follows [@higham2001algorithmic], but adds in multiple trials in a vectorized manner.
+
+
+# References
