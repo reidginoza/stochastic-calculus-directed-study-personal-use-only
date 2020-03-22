@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1bb3734c-098c-4ed3-ac30-d180b09f7502" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../Hmwk_06/hmwk_06.Rmd" beforeDir="false" afterPath="$PROJECT_DIR$/../Hmwk_06/hmwk_06.Rmd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hm5.py" beforeDir="false" afterPath="$PROJECT_DIR$/hm5.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hm6.py" beforeDir="false" afterPath="$PROJECT_DIR$/hm6.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +33,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
   </component>
-  <component name="RunManager" selected="Python.hm5">
+  <component name="RunManager" selected="Python.hm6">
     <configuration name="hm2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="hmwk_notes" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -100,6 +101,9 @@
       <module name="hmwk_notes" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -114,13 +118,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="hm6" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="hmwk_notes" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hm6.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.hm5" />
-        <item itemvalue="Python.hm5" />
-        <item itemvalue="Python.hm5" />
-        <item itemvalue="Python.hm5" />
-        <item itemvalue="Python.hm5" />
+        <item itemvalue="Python.hm6" />
+        <item itemvalue="Python.hm6" />
+        <item itemvalue="Python.hm6" />
+        <item itemvalue="Python.hm6" />
+        <item itemvalue="Python.hm6" />
       </list>
     </recent_temporary>
   </component>
@@ -178,14 +200,24 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="320" y="190" key="Vcs.Push.Dialog.v2/0.0.1440.900@0.0.1440.900" timestamp="1583467981482" />
-    <state x="399" y="275" key="com.intellij.ide.util.TipDialog" timestamp="1583463338250">
+    <state x="100" y="100" width="1240" height="700" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1584897918235">
       <screen x="0" y="23" width="1440" height="840" />
     </state>
+    <state x="100" y="100" width="1240" height="700" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1440.840@0.23.1440.840" timestamp="1584897918235" />
+    <state x="399" y="270" key="com.intellij.ide.util.TipDialog" timestamp="1584659708074">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="399" y="270" key="com.intellij.ide.util.TipDialog/0.0.1440.900@0.0.1440.900" timestamp="1584659708074" />
     <state x="399" y="275" key="com.intellij.ide.util.TipDialog/0.23.1440.840@0.23.1440.840" timestamp="1583463338250" />
     <state x="399" y="275" key="com.intellij.ide.util.TipDialog/0.23.1440.841@0.23.1440.841" timestamp="1581965419012" />
-    <state x="385" y="187" width="670" height="676" key="search.everywhere.popup" timestamp="1582507725206">
-      <screen x="0" y="23" width="1440" height="840" />
+    <state x="369" y="184" width="700" height="530" key="recent.locations.popup" timestamp="1584851991071">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
+    <state x="369" y="184" width="700" height="530" key="recent.locations.popup/0.0.1440.900@0.0.1440.900" timestamp="1584851991071" />
+    <state x="385" y="176" width="670" height="725" key="search.everywhere.popup" timestamp="1584851473710">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="385" y="176" width="670" height="725" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1584851473710" />
     <state x="385" y="187" width="670" height="676" key="search.everywhere.popup/0.23.1440.840@0.23.1440.840" timestamp="1582507725206" />
   </component>
 </project>
