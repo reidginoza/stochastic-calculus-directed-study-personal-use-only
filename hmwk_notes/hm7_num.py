@@ -1,7 +1,34 @@
 # --- Python imports
+from matplotlib.colors import Normalize
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import pandas as pd
+from scipy.stats import kde
+import seaborn as sns
+
+# --- Plot Known density
+def p_analytical(x, t):
+    return 1 / np.sqrt(2 * np.pi * t) * np.cosh(x) * np.exp(-t/2) * np.exp(-x**2/(2*t))
+
+
+x_plot = np.linspace(-10, 10, 200)
+t_plot = np.linspace(0, 5, 201)[1:]
+
+xx, tt = np.meshgrid(x_plot, t_plot)
+
+norm = Normalize(vmin=0,vmax=0.2)
+
+fig = plt.figure()
+ax1 = fig.add_subplot(111, projection='3d')
+ax1.set_zlim(top=0.2)
+ax1.plot_surface(xx, tt, p_analytical(xx, tt), cmap=plt.cm.get_cmap('viridis'),
+                 norm=norm)
+ax1.view_init(30, 30)
+plt.xlabel('Position $x$')
+plt.ylabel('Time $t$')
+plt.title('Probability Density')
+
 
 
 # --- Brownian Motion
@@ -104,7 +131,7 @@ def euler_maruyama_nonlinear_vec(f, g, x0, t, dt, dw, M):
     for i in range(1, L+1):
         # DW is the step of Brownian motion for EM step size
         DW = (dw[M * (i - 1) + 1:M * i + 1, :]).sum(axis=0).reshape(dw.shape[1], )
-        x.append(x[i-1] + Dt * f(x[i-1]) * x[i - 1] + g(x[i-1]) * x[i - 1] * DW)
+        x.append(x[i-1] + Dt * f(x[i-1]) + g(x[i-1]) * DW)
         T.append(T[i-1] + Dt)
 
     return np.array(T), np.array(x)
@@ -134,7 +161,7 @@ x0 = 0
 
 # Brownian Motion
 END_TIME = 5.
-NUM_TSTEPS = 2**16
+NUM_TSTEPS = 2**8
 N_TRIALS = 1000
 
 # Euler-Maruyama
@@ -155,7 +182,18 @@ t, w, dt, dw = multiple_brownian_motion(end_time=END_TIME,
 t_em, x_em = euler_maruyama_nonlinear_vec(f, g, x0, t, dt, dw, M)
 
 fig, ax = plt.subplots(1, figsize=(7, 6.5))
-plot_on_axis(ax, t_em, x_em, plot_columns, r'$N$ Process'+'\nEuler Maruyama Approximation',
+plot_on_axis(ax, t_em, x_em, plot_columns, r'Beneš Process'+'\nEuler Maruyama Approximation',
              color_map=viridis, with_mean=True)
 plt.xlabel('Time')
 plt.ylabel('Population')
+
+plt.figure()
+data_points = pd.DataFrame({
+    'Time': np.tile(t_em, N_TRIALS),
+    'Position': x_em.flatten(order='F')
+})
+
+sns.set_style("white")
+sns.kdeplot(data_points['Time'], data_points['Position'], cmap="Reds", shade=True, bw=.15)
+plt.title('Contour Plot of the Numerical Simulation Density')
+
