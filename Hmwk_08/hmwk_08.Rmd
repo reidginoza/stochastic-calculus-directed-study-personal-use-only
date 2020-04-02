@@ -1,0 +1,91 @@
+---
+title: "Assignment 8"
+author: "Reid Ginoza"
+date: "4/05/2020"
+output: pdf_document
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_python("/Users/macowner/my_venv/py38/bin/python")
+```
+\newcommand{\D}{\mathrm{d}}
+
+# Analytical
+This is Exercise 5.11 from [@sarkka2019applied], which asks for the mean and variance of the Black-Scholes function, defined as:
+\begin{equation}
+\D x = \mu x \D t + \sigma x \D \beta,
+\end{equation}
+where \(\beta\) is standard Brownian motion.
+
+The author provides the following system of equations:
+\begin{align}
+\dfrac{\D m}{\D t} &= \mu m\\
+\dfrac{\D P}{\D t} &= 2 \mu P + \sigma^2 P + \sigma^2 m^2,
+\end{align}
+where \(m\) is the mean, \(P\) is the variance, and \(\mu\) and \(\sigma\) are parameters of the Black-Scholes SDE.
+We are also given the intial conditions:
+\begin{align}
+m\left(0\right) &= m_0\\
+P\left(0\right) &= P_0
+\end{align}
+
+## My solution
+### Mean
+First we'll solve the mean equation by separation of variables.
+\begin{align}
+\dfrac{\D m}{\D t} &= \mu m\\
+\dfrac{1}{m} \D m &= \mu \D t\\
+\int \dfrac{1}{m} \D m &= \int \mu \D t\\
+\ln{m} &= \mu t + c_1\\
+m &= c \, \mathrm{e}^{\left( \mu t \right)}
+\end{align}
+and with the initial condition \(m\left(0\right) = m_0\):
+\begin{align}
+m\left( 0 \right) = m_0 &= c \mathrm{e}^{\mu \left( 0 \right)}\\
+m_0 &= c \\
+\therefore m\left( t \right) &= m_0 \, \mathrm{e}^{\mu t}
+\end{align}
+
+### Variance
+We will solve the Variance equation by substituting in the mean equation and then using an integrating factor, \(I\).
+Note that we assume that \(\sigma > 0\).
+\begin{align}
+\dfrac{\D P}{\D t} &= 2 \mu P + \sigma^2 P + \sigma^2 m^2\\
+\dfrac{\D P}{\D t} &= 2 \mu P + \sigma^2 P + \sigma^2 m_0^2 \, \mathrm{e}^{2 \mu t }\\
+\dfrac{\D P}{\D t} - \left( 2 \mu + \sigma^2 \right) P &=  \sigma^2 m_0^2 \, \mathrm{e}^{2 \mu t }\\
+\text{Let } I &:= \mathrm{e}^{\int - \left( 2 \mu + \sigma^2 \right) \D t} = \mathrm{e}^{- \left( 2 \mu + \sigma^2 \right) t}\\
+\text{Then, } \quad \mathrm{e}^{- \left( 2 \mu + \sigma^2 \right) t} \dfrac{\D P}{\D t} - \left( 2 \mu + \sigma^2 \right) P \mathrm{e}^{- \left( 2 \mu + \sigma^2 \right) t} &= \sigma^2 m_0^2 \, \mathrm{e}^{2 \mu t } \mathrm{e}^{- \left( 2 \mu + \sigma^2 \right) t}\\
+\dfrac{\D}{\D t} \left( \mathrm{e}^{- \left( 2 \mu + \sigma^2 \right) t } P\right) &= \sigma^2 m_0^2 \, \mathrm{e}^{- \sigma^2 t}\\ 
+\int \dfrac{\D}{\D t} \left( \mathrm{e}^{- \left( 2 \mu + \sigma^2 \right) t } P\right) \D t&= \sigma^2 m_0^2 \int \mathrm{e}^{- \sigma^2 t} \D t\\ 
+\mathrm{e}^{- \left( 2 \mu + \sigma^2 \right) t } P &= - \sigma^2 \dfrac{1}{\sigma^2} m_0^2 \, \mathrm{e}^{- \sigma^2 t} + c_2\\
+P &= -  m_0^2 \, \mathrm{e}^{- \sigma^2 t} \mathrm{e}^{\left( 2 \mu + \sigma^2 \right) t } + c_2 \, \mathrm{e}^{\left( 2 \mu + \sigma^2 \right) t }\\
+P &= -  m_0^2 \, \mathrm{e}^{2 \mu t} + c_2 \, \mathrm{e}^{\left( 2 \mu + \sigma^2 \right) t }
+\end{align}
+with the initial condition \(P\left(0\right) = P_0\),
+\begin{align}
+P\left( 0 \right) = P_0 &= -  m_0^2 \, \mathrm{e}^{2 \mu \left( 0 \right)} + c_2 \, \mathrm{e}^{\left( 2 \mu + \sigma^2 \right) \left( 0 \right) }\\
+P_0 &= -  m_0^2 + c_2\\
+\implies c_2 &= P_0 + m_0^2\\
+\therefore P\left(t\right) &= -  m_0^2 \, \mathrm{e}^{2 \mu t} + \left( P_0 + m_0^2 \right) \, \mathrm{e}^{\left( 2 \mu + \sigma^2 \right) t }
+\end{align}
+
+# Numerical Problem
+We will now simulate the Black-Scholes SDE and check the statistics of the solutions to compare with the analytical formulation.
+
+
+
+```{python imports for setup}
+from matplotlib.colors import Normalize
+from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import pandas as pd
+from scipy.stats import kde
+import seaborn as sns
+```
+
+
+# References
