@@ -332,4 +332,5 @@ fig, ax = plt.subplots()
 ax.pcolormesh(tt, xx, pdf_rows, shading='gouraud', cmap=plt.cm.gist_earth_r)
 ax.set_title('Normalized Shape of Numerical Density')
 ```
+
 # References
