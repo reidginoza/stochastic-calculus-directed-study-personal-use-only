@@ -1,3 +1,48 @@
+---
+title: "Assignment 9"
+author: "Reid Ginoza"
+date: "4/12/2020"
+output:
+  pdf_document:
+    keep_tex: yes
+bibliography: bibliography.bib
+header-includes:
+  - \newcommand{\D}{\mathrm{d}}
+  - \DeclareMathOperator*{\argmin}{arg\,min}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_python("/Users/macowner/my_venv/py38/bin/python")
+```
+
+# Analytical Maximum Likelihood
+This is Exercise 11.1 from [@sarkka2019applied].
+We are given the following:
+\begin{equation}
+x_k = \theta + r_k, \quad k=1, 2, \ldots, T,
+\end{equation}
+where \(r_k \sim \operatorname{N}{\left( 0, \sigma^2 \right)}\) are independent.
+
+## Maximum Likelihood Estimator
+Let \(L\left(\cdot\right)\) be the likelihood and \(l\left(\cdot\right)\) be the negative log likelihood.
+Then, to find the maximum likelihood estimator \( \theta_{\textrm{ML}} = \argmin_{\theta} L\left(\theta\right)\), we will minimize \(l \left( \theta \right)\):
+\begin{align}
+x_k &= \theta + r_k \sim \operatorname{N}{\left( \theta, \sigma^2 \right)}\\
+\implies \operatorname{f}{\left( x_k \vert \theta\right)} &= 
+\dfrac{1}{\sqrt{2 \pi \sigma^2}} \exp{\left( - \dfrac{\left( x_k - \theta \right)^2}{2 \sigma^2} \right)}\\
+\implies L \left( \theta \right) &= \left( 2 \pi \sigma^2 \right)^{\frac{T}{2}} \prod_{k=1}^{T} \exp{\left( - \dfrac{\left( x_k - \theta \right)^2}{2 \sigma^2} \right)}\\
+&= \left( 2 \pi \sigma^2 \right)^{\frac{T}{2}} \exp{\left( - \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} \left( x_k - \theta \right)^2 \right)}\\
+\implies l\left( \theta \right) &= - \dfrac{T}{2} \log{\left( 2 \pi \sigma^2 \right)} + \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} \left( x_k - \theta \right)^2\\
+\text{Now, suppose } \theta_{\textrm{ML}}\text{ solves the following,} \quad \dfrac{\D l}{\D \theta} &= 0\\
+&= - \dfrac{1}{\sigma^2} \sum_{k=1}^{T} \left( x_k - \theta_{\textrm{ML}} \right)\\
+\implies 0 &= \sum_{k=1}^{T} \left( x_k - \theta_{\textrm{ML}} \right)\\
+\implies \theta_{\textrm{ML}} &= \dfrac{1}{T} \sum_{k=1}^{T} x_k = \bar{x}
+\end{align}
+
+# Numerical Maximum Likelihood
+```{python ml1}
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize_scalar
@@ -48,8 +93,64 @@ ax.set_xlabel(r'$\theta$')
 ax.set_ylabel('Likelihood ' + r'$L(\theta)$')
 ax.set_title('Likelihood Function')
 ax.legend()
+plt.show()
+```
 
-# -- Maximum A Posteriori --
+# Analytical Maximum A Posteriori
+This is Exercise 11.2 from [@sarkka2019applied].
+Since this is not a nonlinear SDE, we can use the following to determine the posterior probability distribution:
+\begin{align}
+p\left(\theta | x\left(t_1\right), \ldots, x\left(t_T\right)\right) &\sim
+  p\left(\theta\right) \exp{\left( -l\left(\theta\right)\right)} = \exp{\left( -l_p\left( \theta \right) \right)}\\
+&= \left[
+    \dfrac{1}{\sqrt{2\pi\lambda^2}} \exp{\left(- \dfrac{\theta^2}{2\lambda^2}\right)}
+\right]
+\left[
+    \exp{\left(
+        \dfrac{T}{2} \log{\left( 2 \pi \sigma^2 \right)} - \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} \left( x_k - \theta \right)^2
+    \right)}
+\right]\\
+&= \left( 2 \pi \lambda^2 \right)^\frac{1}{2}
+    \exp{ \left(
+        - \dfrac{\theta^2}{2\lambda^2} + \dfrac{T}{2} \log{\left( 2 \pi \sigma^2 \right)} - \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} \left( x_k - \theta \right)^2
+    \right) }
+\end{align}
+
+and to find the maximimum a posteriori estimate, \(\theta_{\textrm{MAP}} = \argmin_\theta p\left(\theta | x\left(t_1\right), \ldots, x\left(t_T\right)\right)\), we minimize the negative logarithm of the posterior distribution, which we'll call \(A\).
+\begin{align}
+A &=
+- \log{\left(
+\left( 2 \pi \lambda^2 \right)^\frac{1}{2}
+    \exp{ \left(
+        - \dfrac{\theta^2}{2\lambda^2} + \dfrac{T}{2} \log{\left( 2 \pi \sigma^2 \right)} - \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} \left( x_k - \theta \right)^2
+    \right) }
+\right)}\\
+&= - \dfrac{1}{2}\log{\left( 2 \pi \lambda^2 \right)}
++ \dfrac{\theta^2}{2\lambda^2} - \dfrac{T}{2} \log{\left( 2 \pi \sigma^2 \right)} + \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} \left( x_k - \theta \right)^2\\
+&= - \dfrac{1}{2}\log{\left( 2 \pi \lambda^2 \right)}
++ \dfrac{\theta^2}{2\lambda^2} - \dfrac{T}{2} \log{\left( 2 \pi \sigma^2 \right)}
+  + \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} x_k^2
+  -2 \theta \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} x_k
+  + \dfrac{1}{2 \sigma^2} T \theta^2\\
+&= \left[ \dfrac{1}{2\lambda^2} + \dfrac{T}{2\sigma^2} \right]\theta^2
+- \left[\dfrac{1}{\sigma^2} \sum_{k=1}^T x_k \right] \theta
++ \left[ \dfrac{1}{2 \sigma^2} \sum_{k=1}^{T} x_k^2
+- \dfrac{1}{2}\log{\left( 2 \pi \lambda^2 \right)}
+\right]
+\end{align}
+
+Since \(A\) is quadratic in \(\theta\), we can use the familiar formula for the minimum.
+\begin{align}
+\theta_{\mathrm{MAP}} &= \dfrac{\dfrac{1}{\sigma^2} \sum_{k=1}^T x_k}{\dfrac{1}{\lambda^2} + \dfrac{T}{\sigma^2}}\\
+&= \dfrac{\dfrac{1}{\sigma^2} \sum_{k=1}^T x_k}
+{\dfrac{T\lambda^2 + \sigma^2}{\lambda^2\sigma^2}}\\
+&= \dfrac{\lambda^2}{T\lambda^2 + \sigma^2} \sum_{k=1}^T x_k\\
+&= \dfrac{1}{T + \dfrac{\sigma^2}{\lambda^2}} \sum_{k=1}^T x_k
+\end{align}
+
+# Numerical MAP Estimator
+
+```{python MAP estimator}
 # -- Prior --
 LAMBDA = 2
 
@@ -112,11 +213,14 @@ axes2[1].set_title('Posterior Distribution')
 axes2[1].legend()
 fig2.tight_layout()
 plt.show()
+```
 
-# -- Metropolis-Hastings --
+# Metropolis-Hastings Algorithm
+This is Exercise 11.3 from [@sarkka2019applied].
+This is strictly a coding exercise, using the Metropolis-Hastings algorithm to approximate the posterior distribution.
+
+```{python metropolis hastings}
 # Functions for M-H Algorithm
-
-
 def sample_proposal(cur_theta, gamma):
     return np.random.normal(loc=cur_theta, scale=gamma)
 
@@ -210,3 +314,5 @@ mh_axes[1].set_title(r'Posterior Distribution (normalized)')
 mh_axes[1].legend()
 mh_fig.tight_layout()
 plt.show()
+```
+# References
