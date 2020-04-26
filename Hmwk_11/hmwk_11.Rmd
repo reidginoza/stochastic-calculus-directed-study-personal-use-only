@@ -1,0 +1,56 @@
+---
+title: "Assignment 11"
+author: "Reid Ginoza"
+date: "4/26/2020"
+output:
+  pdf_document:
+    keep_tex: yes
+bibliography: bibliography.bib
+header-includes:
+  - \newcommand{\D}{\mathrm{d}}
+  - \DeclareMathOperator*{\argmin}{arg\,min}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+use_python("/Users/macowner/my_venv/py38/bin/python")
+```
+
+# Scalar SDE Analytical Solution
+This is Exercise 8.1 from [@sarkka2019applied].
+We are given the following SDE:
+\begin{equation}
+\D x = -c \, x \D t + g \, x \D \beta, \quad x(0) = x_0,
+\end{equation}
+where \(c\), \(g\), and \(x_0\) are positive constants and \(\beta (t)\) is a standard Brownian motion.
+
+We will use the Itô chain rule, where the drift function is \(F(x) = -cx\) and the dispersion function \(G(x) = gx\).
+We want to solve for \(u(x) = \ln{\left( x\right)}\).
+\begin{align}
+u_t &= 0\\
+u_x &= \dfrac{1}{x}\\
+u_{xx} &= - \dfrac{1}{x^2}\\
+\implies \D u &= \left(u_t + u_x F + \dfrac{1}{2} u_{xx} G^2 \right) \D t + u_x \,G \,\D \beta\\
+&=\left(0 - \dfrac{cx}{x} - \dfrac{g^2 x^2}{2x^2} \right) \D t + \dfrac{gx}{x} \, \D \beta\\
+&=\left(- c - \dfrac{g^2}{2} \right) \D t + g \, \D \beta\\
+\implies u &= \left(- c - \dfrac{g^2}{2} \right) t + g \beta + C\\
+\ln{\left( x \right)} &= \left(- c - \dfrac{g^2}{2} \right) t + g \beta + C\\
+\implies x &= C \exp{\left[ \left(- c - \dfrac{g^2}{2} \right) t + g \beta \right]}\\
+\text{Applying the initial condition,}\quad\quad x &= x_0 \exp{\left[ \left(- c - \dfrac{g^2}{2} \right) t + g \beta \right]}
+\end{align}
+
+# Numerical Solution
+We will examine the case where \(x_0 = 1, \, c = 0.1, \, g=0.1\) with the Milstein method.
+The SDE, therefore, is
+\begin{equation}
+\D x = -0.1x \D t + 0.1 x \D \beta, \quad x(0) = 1.
+\end{equation}
+and the known analytical solution is:
+\begin{equation}
+x = \exp{\left[ -0.105 \right]t + 0.1 \beta}
+\end{equation}
+
+
+
+# References
