@@ -29,6 +29,46 @@
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -111,9 +151,276 @@ u_{xx} &= - \dfrac{1}{x^2}\\
 &=\left(- c - \dfrac{g^2}{2} \right) \mathrm{d}t + g \, \mathrm{d}\beta\\
 \implies u &= \left(- c - \dfrac{g^2}{2} \right) t + g \beta + C\\
 \ln{\left( x \right)} &= \left(- c - \dfrac{g^2}{2} \right) t + g \beta + C\\
-\implies x &= C \exp{\left( \left(- c - \dfrac{g^2}{2} \right) t + g \beta \right)}\\
-\text{Applying the initial condition,}\quad\quad x &= x_0 \exp{\left( \left(- c - \dfrac{g^2}{2} \right) t + g \beta \right)}
+\implies x &= C \exp{\left[ \left(- c - \dfrac{g^2}{2} \right) t + g \beta \right]}\\
+\text{Applying the initial condition,}\quad\quad x &= x_0 \exp{\left[ \left(- c - \dfrac{g^2}{2} \right) t + g \beta \right]}
 \end{align}
+
+\hypertarget{numerical-solution}{%
+\section{Numerical Solution}\label{numerical-solution}}
+
+We will use the Milstein method for the an SDE in this form:
+\begin{equation}
+\mathrm{d}x = F(x) \mathrm{d}t + G(x) \mathrm{d}\beta,
+\end{equation} where \(x\) is a scalar, \(\beta\) is the standard
+Brownian motion, and we given the initial condition \(x(0) = x_0\).
+Given the Brownian motion step \(\Delta\beta\), or having drawn it from
+\(\Delta \beta \sim \mathrm{N}\left(0, \Delta t\right)\), the Milstein
+calculates each time step \(\hat{x}\) as: \begin{equation}
+\hat{x} (t_{k+1}) = \hat{x} (t_k) + F(\hat{x}(t_k)) \Delta t 
++ G(\hat{x}(t_k)) \Delta \beta_k
++ \dfrac{1}{2} \dfrac{\partial\,G (\hat{x}(t_k))}{\partial x} G (\hat{x}(t_k)) (\Delta \beta_k^2 - \Delta t)
+\end{equation}
+
+We will examine the case where \(x_0 = 1, \, c = 0.1, \, g=0.1\) with
+the Milstein method. The SDE, therefore, is \begin{equation}
+\mathrm{d}x = -0.1x \mathrm{d}t + 0.1 x \mathrm{d}\beta, \quad x(0) = 1.
+\end{equation} and the known analytical solution is: \begin{equation}
+x = \exp{\left[ -0.105 t + 0.1 \beta\right]}
+\end{equation} and the Milstein step, given the Brownian motion step
+\(\Delta \beta_k\) is: \begin{equation}
+\hat{x} (t_{k+1}) = \hat{x} (t_k) - 0.1 \hat{x}(t_k) \Delta t 
++ 0.1 \hat{x}(t_k) \Delta \beta_k
++ 0.005 \hat{x}(t_k) (\Delta \beta_k^2 - \Delta t)
+\end{equation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ matplotlib }\ImportTok{import}\NormalTok{ pyplot }\ImportTok{as}\NormalTok{ plt}
+
+\CommentTok{# -- Brownian Motion --}
+\KeywordTok{def}\NormalTok{ multiple_brownian_motion(end_time}\OperatorTok{=}\FloatTok{1.}\NormalTok{, num_tsteps}\OperatorTok{=}\DecValTok{500}\NormalTok{, n_trials}\OperatorTok{=}\DecValTok{1000}\NormalTok{):}
+    \CommentTok{"""Creates multiple 1-D Brownian motion with time as the row index and}
+\CommentTok{    each column as a separate path of Brownian motion.}
+
+\CommentTok{    This assumes that all Brownian motion starts at 0. Currently only}
+\CommentTok{    implements one-dimensional Brownian motion. This also assumes all}
+\CommentTok{    step sizes are the same size.}
+
+\CommentTok{    The steps of Brownian motion, ``dw``, are modeled with a Gaussian}
+\CommentTok{    distribution with mean 0 and variance ``sqrt(dt)``, where ``dt``}
+\CommentTok{    is the constant time step size.}
+
+\CommentTok{    Parameters}
+\CommentTok{    ----------}
+\CommentTok{    end_time : float}
+
+\CommentTok{    num_tsteps : int}
+\CommentTok{        The number of steps to take. Will calculate the step}
+\CommentTok{        size dt internally. The number of rows in the output of}
+\CommentTok{        Brownian motion will be num_tsteps + 1.}
+
+\CommentTok{    n_trials : int}
+\CommentTok{        The number of sample paths to create. This will be the number}
+\CommentTok{        of columns in the output.}
+
+\CommentTok{    Returns}
+\CommentTok{    -------}
+\CommentTok{    t : ndarray}
+\CommentTok{        One-dimensional time ndarray from 0 to ``end_time`` with}
+\CommentTok{        shape (``num_tsteps``+1,)}
+
+\CommentTok{    w : ndarray}
+\CommentTok{        Two-dimensional ndarray representing ``n_trials`` number of}
+\CommentTok{        sample paths of one-dimensional Brownian motion.}
+\CommentTok{        This will be of shape (``num_tsteps``+1, ``n_trials``).}
+
+\CommentTok{    dt : float}
+\CommentTok{        The value indicating the step size of t. This is only implemented}
+\CommentTok{        with constant step size.}
+
+\CommentTok{    dw : ndarray}
+\CommentTok{        Two-dimensional ndarray representing the steps of Brownian motion.}
+\CommentTok{        The first row is all zeros. Each i-th row of ``dw``, ie. dw[i, :]}
+\CommentTok{        indicates the change in ``w`` from w[i-1, :] to w[i, :]}
+\CommentTok{        This will be the same shape as ``w``, (``num_tsteps``+1, ``n_trials``).}
+
+\CommentTok{    """}
+
+\NormalTok{    dt }\OperatorTok{=}\NormalTok{ (end_time }\OperatorTok{-} \DecValTok{0}\NormalTok{) }\OperatorTok{/}\NormalTok{ num_tsteps}
+\NormalTok{    dw }\OperatorTok{=}\NormalTok{ np.random.normal(scale}\OperatorTok{=}\NormalTok{np.sqrt(dt), size}\OperatorTok{=}\NormalTok{(num_tsteps}\OperatorTok{+}\DecValTok{1}\NormalTok{, n_trials))}
+    \CommentTok{# Brownian motion must start at time 0 with value 0}
+\NormalTok{    dw[}\DecValTok{0}\NormalTok{] }\OperatorTok{=}\NormalTok{ np.zeros_like(dw[}\DecValTok{0}\NormalTok{])}
+\NormalTok{    w }\OperatorTok{=}\NormalTok{ dw.cumsum(axis}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+    \CommentTok{# t is not used in calculations, but returned to allow user to keep track}
+    \CommentTok{# of points in time}
+\NormalTok{    t }\OperatorTok{=}\NormalTok{ np.linspace(}\DecValTok{0}\NormalTok{, end_time, num}\OperatorTok{=}\NormalTok{num_tsteps}\OperatorTok{+}\DecValTok{1}\NormalTok{).reshape((num_tsteps}\OperatorTok{+}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+    \ControlFlowTok{assert}\NormalTok{ w.shape[}\DecValTok{0}\NormalTok{] }\OperatorTok{==}\NormalTok{ t.shape[}\DecValTok{0}\NormalTok{], (}\StringTok{'time and position arrays are not the '}
+                                      \StringTok{'same length. w.shape[0] - t.shape[0] = '}
+                                      \SpecialStringTok{f'}\SpecialCharTok{\{w.}\NormalTok{shape[}\DecValTok{0}\NormalTok{] }\OperatorTok{-} \SpecialCharTok{t.}\NormalTok{shape[}\DecValTok{0}\NormalTok{]}\SpecialCharTok{\}}\SpecialStringTok{'}\NormalTok{)}
+    \ControlFlowTok{assert}\NormalTok{ w.shape }\OperatorTok{==}\NormalTok{ dw.shape, (}\StringTok{'position and velocity arrays are not the '}
+                                 \StringTok{'same shape: '}
+                                 \SpecialStringTok{f'w.shape: }\SpecialCharTok{\{w.}\NormalTok{shape}\SpecialCharTok{\}}\SpecialStringTok{    dw.shape: }\SpecialCharTok{\{dw.}\NormalTok{shape}\SpecialCharTok{\}}\SpecialStringTok{'}\NormalTok{)}
+    \ControlFlowTok{return}\NormalTok{ t, w, dt, dw}
+
+
+\KeywordTok{def}\NormalTok{ euler_maruyama_nonlinear_vec(f, g, x0, t, dt, dw, M):}
+    \CommentTok{"""}
+\CommentTok{    calculates the EM approximation on the nonlinear one-dimensional SDE,}
+\CommentTok{    vectorized for multiple trials based on the shape of ``dw``.}
+
+\CommentTok{    SDE is of the form:}
+\CommentTok{    dX = f(X)dt + G(X)dW; X(0) = X0}
+
+\CommentTok{    :param f: shift function in SDE. Must be passed as a function of x}
+\CommentTok{    :param g: drift/dispersion function in SDE}
+\CommentTok{    :param x0: Initial condition}
+\CommentTok{    :param t: time one dimensional nd-array}
+\CommentTok{    :param dt: step size of time array, float}
+\CommentTok{    :param dw: White noise associated with the Brownian motion, ndarray}
+\CommentTok{    :param M: multiple of dt for Euler-Maruyama step size. Do not make this too large.}
+\CommentTok{    :return: time array and solution x array}
+\CommentTok{    """}
+
+    \ControlFlowTok{if}\NormalTok{ M }\OperatorTok{<} \DecValTok{1}\NormalTok{:}
+        \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{'M must be greater than or equal to 1'}\NormalTok{)}
+
+\NormalTok{    Dt }\OperatorTok{=}\NormalTok{ M }\OperatorTok{*}\NormalTok{ dt  }\CommentTok{# EM step size}
+\NormalTok{    L }\OperatorTok{=}\NormalTok{ (t.shape[}\DecValTok{0}\NormalTok{] }\OperatorTok{-} \DecValTok{1}\NormalTok{) }\OperatorTok{/}\NormalTok{ M  }\CommentTok{# number of EM steps}
+
+    \ControlFlowTok{if} \KeywordTok{not}\NormalTok{ L.is_integer():}
+        \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{'Cannot handle Step Size that is not a multiple of M'}\NormalTok{)}
+
+\NormalTok{    L }\OperatorTok{=} \BuiltInTok{int}\NormalTok{(L)  }\CommentTok{# needed for range below}
+
+\NormalTok{    x }\OperatorTok{=}\NormalTok{ [np.full((dw.shape[}\DecValTok{1}\NormalTok{],), x0)]}
+\NormalTok{    T }\OperatorTok{=}\NormalTok{ [}\DecValTok{0}\NormalTok{]}
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{1}\NormalTok{, L}\OperatorTok{+}\DecValTok{1}\NormalTok{):}
+        \CommentTok{# DW is the step of Brownian motion for EM step size}
+\NormalTok{        DW }\OperatorTok{=}\NormalTok{ (dw[M }\OperatorTok{*}\NormalTok{ (i }\OperatorTok{-} \DecValTok{1}\NormalTok{) }\OperatorTok{+} \DecValTok{1}\NormalTok{:M }\OperatorTok{*}\NormalTok{ i }\OperatorTok{+} \DecValTok{1}\NormalTok{, :]).}\BuiltInTok{sum}\NormalTok{(axis}\OperatorTok{=}\DecValTok{0}\NormalTok{).reshape(dw.shape[}\DecValTok{1}\NormalTok{], )}
+\NormalTok{        x.append(x[i}\DecValTok{-1}\NormalTok{] }\OperatorTok{+}\NormalTok{ Dt }\OperatorTok{*}\NormalTok{ f(x[i}\DecValTok{-1}\NormalTok{]) }\OperatorTok{+}\NormalTok{ g(x[i}\DecValTok{-1}\NormalTok{]) }\OperatorTok{*}\NormalTok{ DW)}
+\NormalTok{        T.append(T[i}\DecValTok{-1}\NormalTok{] }\OperatorTok{+}\NormalTok{ Dt)}
+
+    \ControlFlowTok{return}\NormalTok{ np.array(T), np.array(x)}
+
+
+\KeywordTok{def}\NormalTok{ milstein(f, g, dg, x0, t, dt, dw, M):}
+    \ControlFlowTok{if}\NormalTok{ M }\OperatorTok{<} \DecValTok{1}\NormalTok{:}
+        \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{'M must be greater than or equal to 1'}\NormalTok{)}
+
+\NormalTok{    Dt }\OperatorTok{=}\NormalTok{ M }\OperatorTok{*}\NormalTok{ dt  }\CommentTok{# EM step size}
+\NormalTok{    L }\OperatorTok{=}\NormalTok{ (t.shape[}\DecValTok{0}\NormalTok{] }\OperatorTok{-} \DecValTok{1}\NormalTok{) }\OperatorTok{/}\NormalTok{ M  }\CommentTok{# number of EM steps}
+
+    \ControlFlowTok{if} \KeywordTok{not}\NormalTok{ L.is_integer():}
+        \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{'Cannot handle Step Size that is not a multiple of M'}\NormalTok{)}
+
+\NormalTok{    L }\OperatorTok{=} \BuiltInTok{int}\NormalTok{(L)  }\CommentTok{# needed for range below}
+
+\NormalTok{    x }\OperatorTok{=}\NormalTok{ [np.full((dw.shape[}\DecValTok{1}\NormalTok{],), x0)]}
+\NormalTok{    T }\OperatorTok{=}\NormalTok{ [}\DecValTok{0}\NormalTok{]}
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{1}\NormalTok{, L}\OperatorTok{+}\DecValTok{1}\NormalTok{):}
+        \CommentTok{# DW is the step of Brownian motion for EM step size}
+\NormalTok{        DW }\OperatorTok{=}\NormalTok{ (dw[M }\OperatorTok{*}\NormalTok{ (i }\OperatorTok{-} \DecValTok{1}\NormalTok{) }\OperatorTok{+} \DecValTok{1}\NormalTok{:M }\OperatorTok{*}\NormalTok{ i }\OperatorTok{+} \DecValTok{1}\NormalTok{, :]).}\BuiltInTok{sum}\NormalTok{(axis}\OperatorTok{=}\DecValTok{0}\NormalTok{).reshape(dw.shape[}\DecValTok{1}\NormalTok{], )}
+\NormalTok{        x.append(x[i}\DecValTok{-1}\NormalTok{] }\OperatorTok{+}\NormalTok{ Dt }\OperatorTok{*}\NormalTok{ f(x[i}\DecValTok{-1}\NormalTok{]) }\OperatorTok{+}\NormalTok{ g(x[i}\DecValTok{-1}\NormalTok{]) }\OperatorTok{*}\NormalTok{ DW}
+                 \OperatorTok{+} \FloatTok{0.5} \OperatorTok{*}\NormalTok{ dg(x[i}\DecValTok{-1}\NormalTok{]) }\OperatorTok{*}\NormalTok{ g(x[i}\DecValTok{-1}\NormalTok{]) }\OperatorTok{*}\NormalTok{ (DW}\OperatorTok{**}\DecValTok{2} \OperatorTok{-}\NormalTok{ dt))}
+\NormalTok{        T.append(T[i}\DecValTok{-1}\NormalTok{] }\OperatorTok{+}\NormalTok{ Dt)}
+
+    \ControlFlowTok{return}\NormalTok{ np.array(T), np.array(x)}
+
+
+\CommentTok{# -- Input Deck --}
+\KeywordTok{def}\NormalTok{ f(x):}
+    \ControlFlowTok{return} \OperatorTok{-} \FloatTok{0.1} \OperatorTok{*}\NormalTok{ x}
+
+
+\KeywordTok{def}\NormalTok{ g(x):}
+    \ControlFlowTok{return} \FloatTok{0.1} \OperatorTok{*}\NormalTok{ x}
+
+
+\KeywordTok{def}\NormalTok{ dg(x):}
+    \KeywordTok{del}\NormalTok{ x  }\CommentTok{# unused}
+    \ControlFlowTok{return} \FloatTok{0.1}
+
+
+\CommentTok{# Initial Condition}
+\NormalTok{x0 }\OperatorTok{=} \DecValTok{1}
+
+\CommentTok{# Known Analytical Solution}
+\KeywordTok{def}\NormalTok{ x_true(t, w):}
+    \ControlFlowTok{return}\NormalTok{ np.exp(}\OperatorTok{-}\FloatTok{0.105}\OperatorTok{*}\NormalTok{t }\OperatorTok{+} \FloatTok{0.1}\OperatorTok{*}\NormalTok{w)}
+
+
+\CommentTok{# simulation variables}
+\NormalTok{END_TIME }\OperatorTok{=} \DecValTok{1}
+\NormalTok{NUM_TSTEPS }\OperatorTok{=} \DecValTok{500}
+\NormalTok{N_TRIALS }\OperatorTok{=} \DecValTok{1000}
+\NormalTok{APPROX_STEP }\OperatorTok{=} \DecValTok{50}
+
+\CommentTok{# plotting}
+\NormalTok{color_rotate }\OperatorTok{=} \DecValTok{10}
+\NormalTok{color_num }\OperatorTok{=} \BuiltInTok{int}\NormalTok{(N_TRIALS}\OperatorTok{/}\NormalTok{color_rotate)}
+\NormalTok{colors }\OperatorTok{=}\NormalTok{ plt.get_cmap(}\StringTok{'viridis'}\NormalTok{, lut}\OperatorTok{=}\NormalTok{color_num)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{sample-paths}{%
+\subsection{Sample Paths}\label{sample-paths}}
+
+This section shows sample paths generated by the true solution given
+1000 samples of brownian motion, and the approximations from the Euler
+Maruyama solution and Milstein solution, both using only 0.2 times the
+number of steps as the true solution.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# start run}
+\NormalTok{t, w, dt, dw }\OperatorTok{=}\NormalTok{ multiple_brownian_motion(END_TIME, NUM_TSTEPS, N_TRIALS)}
+\NormalTok{full_true }\OperatorTok{=}\NormalTok{ x_true(t, w)}
+
+\NormalTok{t_em, x_em }\OperatorTok{=}\NormalTok{ euler_maruyama_nonlinear_vec(f, g, x0, t, dt, dw, M}\OperatorTok{=}\NormalTok{APPROX_STEP)}
+\NormalTok{t_mil, x_mil }\OperatorTok{=}\NormalTok{ milstein(f, g, dg, x0, t, dt, dw, M}\OperatorTok{=}\NormalTok{APPROX_STEP)}
+
+\CommentTok{# plot true solution}
+
+\NormalTok{fig_path, ax_path }\OperatorTok{=}\NormalTok{ plt.subplots(nrows}\OperatorTok{=}\DecValTok{3}\NormalTok{, sharex}\OperatorTok{=}\VariableTok{True}\NormalTok{, sharey}\OperatorTok{=}\VariableTok{True}\NormalTok{, figsize}\OperatorTok{=}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{10}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ idx, trial }\KeywordTok{in} \BuiltInTok{enumerate}\NormalTok{(full_true.transpose()):}
+\NormalTok{    ax_path[}\DecValTok{0}\NormalTok{].plot(t, trial, color}\OperatorTok{=}\NormalTok{colors(idx}\OperatorTok{%}\NormalTok{color_num), alpha}\OperatorTok{=}\FloatTok{0.8}\NormalTok{)}
+\NormalTok{ax_path[}\DecValTok{0}\NormalTok{].set_title(}\StringTok{'True Solution'}\NormalTok{)}
+
+\ControlFlowTok{for}\NormalTok{ idx, trial }\KeywordTok{in} \BuiltInTok{enumerate}\NormalTok{(x_em.transpose()):}
+\NormalTok{    ax_path[}\DecValTok{1}\NormalTok{].plot(t_em, trial, color}\OperatorTok{=}\NormalTok{colors(idx}\OperatorTok{%}\NormalTok{color_num), alpha}\OperatorTok{=}\FloatTok{0.8}\NormalTok{)}
+\NormalTok{ax_path[}\DecValTok{1}\NormalTok{].set_ylabel(}\StringTok{'Value'}\NormalTok{)}
+\NormalTok{ax_path[}\DecValTok{1}\NormalTok{].set_title(}\StringTok{'Euler-Maruyama Solution'}\NormalTok{)}
+
+\ControlFlowTok{for}\NormalTok{ idx, trial }\KeywordTok{in} \BuiltInTok{enumerate}\NormalTok{(x_mil.transpose()):}
+\NormalTok{    ax_path[}\DecValTok{2}\NormalTok{].plot(t_mil, trial, color}\OperatorTok{=}\NormalTok{colors(idx}\OperatorTok{%}\NormalTok{color_num), alpha}\OperatorTok{=}\FloatTok{0.8}\NormalTok{)}
+\NormalTok{ax_path[}\DecValTok{2}\NormalTok{].set_title(}\StringTok{'Milstein Solution'}\NormalTok{)}
+\NormalTok{ax_path[}\DecValTok{2}\NormalTok{].set_xlabel(}\StringTok{'Time'}\NormalTok{)}
+\CommentTok{# fig_path.subplots_adjust(top=0.88)}
+\CommentTok{# fig_path.suptitle('Paths')}
+\NormalTok{plt.tight_layout()}
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/Users/macowner/Documents/Stochastic_Calculus/Hmwk_11/hmwk_11_files/figure-latex/sample paths-1.pdf}
+
+\hypertarget{distribution-at-the-end-time}{%
+\subsection{Distribution at the End
+Time}\label{distribution-at-the-end-time}}
+
+Now we show the distributions at the end time \(t=1\). Surprisingly,
+even with the large time steps, both the Euler-Maruyama and the Milstein
+method perform well in matching the distribution.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Look at end_time}
+\NormalTok{fig, ax }\OperatorTok{=}\NormalTok{ plt.subplots(nrows}\OperatorTok{=}\DecValTok{3}\NormalTok{, sharex}\OperatorTok{=}\VariableTok{True}\NormalTok{, sharey}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\NormalTok{h0 }\OperatorTok{=}\NormalTok{ ax[}\DecValTok{0}\NormalTok{].hist(full_true[}\OperatorTok{-}\DecValTok{1}\NormalTok{:].flatten(), bins}\OperatorTok{=}\StringTok{'auto'}\NormalTok{)}
+\NormalTok{ax[}\DecValTok{0}\NormalTok{].set_title(}\StringTok{'True Solution'}\NormalTok{)}
+\NormalTok{h1 }\OperatorTok{=}\NormalTok{ ax[}\DecValTok{1}\NormalTok{].hist(x_em[}\OperatorTok{-}\DecValTok{1}\NormalTok{:].flatten(), bins}\OperatorTok{=}\StringTok{'auto'}\NormalTok{)}
+\NormalTok{ax[}\DecValTok{1}\NormalTok{].set_title(}\StringTok{'Euler-Maruyama Solution'}\NormalTok{)}
+\NormalTok{h2 }\OperatorTok{=}\NormalTok{ ax[}\DecValTok{2}\NormalTok{].hist(x_mil[}\OperatorTok{-}\DecValTok{1}\NormalTok{:].flatten(), bins}\OperatorTok{=}\StringTok{'auto'}\NormalTok{)}
+\NormalTok{ax[}\DecValTok{2}\NormalTok{].set_title(}\StringTok{'Milstein Solution'}\NormalTok{)}
+\CommentTok{# fig.subplots_adjust(top=0.88)}
+\CommentTok{# fig.suptitle(f'Distribution at Time $t=\{}\RegionMarkerTok{END}\CommentTok{_TIME\}$')}
+\NormalTok{plt.tight_layout()}
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/Users/macowner/Documents/Stochastic_Calculus/Hmwk_11/hmwk_11_files/figure-latex/end time distribution-1.pdf}
 
 \hypertarget{references}{%
 \section*{References}\label{references}}
